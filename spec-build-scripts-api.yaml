@@ -228,14 +228,15 @@ entrypoints:
         env_var: TAG_VERSION_SOURCE_CUSTOM_PATTERN
         default: ""
 
-      build-location:
+      build-mode:
         type: string
-        description: Where build is running
-        env_var: BUILD_LOCATION
-        required: true
+        description: Build mode that controls release eligibility, and publishing of artifacts (including a git tag)
+        env_var: BUILD_MODE
+        default: local
         allowed_values:
           - local
           - build_server
+        notes: Defaults to 'local' (safe, no releases). CI pipelines must explicitly set 'build_server' to enable pushing the generated tag and publishing artifacts. Operators with bootstrap or recovery build requirements and write access to necessary repos must configure this deliberately.
 
       log-error-prefix:
         type: string
