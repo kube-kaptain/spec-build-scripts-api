@@ -658,6 +658,159 @@ entrypoints:
       - azure-acr: Azure Container Registry with credentials
       - azure-acr-github-actions-oidc: ACR with OIDC
 
+  kubernetes-manifests-package:
+    description: |
+      Package Kubernetes manifests into a zip with variable substitution.
+      Prepares manifests for deployment by replacing tokens with actual values.
+    inputs:
+      manifests-sub-path:
+        type: string
+        description: Directory containing Kubernetes manifests (relative)
+        env_var: MANIFESTS_SUB_PATH
+        default: src/kubernetes
+
+      project-name:
+        type: string
+        description: Project name for variable substitution
+        env_var: PROJECT_NAME
+        required: true
+
+      version:
+        type: string
+        description: Version for variable substitution and naming
+        env_var: VERSION
+        required: true
+
+      output-sub-path:
+        type: string
+        description: Build output directory (relative)
+        env_var: OUTPUT_SUB_PATH
+        default: target
+
+      docker-tag:
+        type: string
+        description: Docker tag for variable substitution (optional)
+        env_var: DOCKER_TAG
+        default: ""
+
+      docker-image-name:
+        type: string
+        description: Docker image name for variable substitution (optional)
+        env_var: DOCKER_IMAGE_NAME
+        default: ""
+
+      docker-image-full-uri:
+        type: string
+        description: Full Docker image URI for variable substitution (optional)
+        env_var: DOCKER_IMAGE_FULL_URI
+        default: ""
+
+      docker-target-registry:
+        type: string
+        description: Target registry for variable substitution (optional)
+        env_var: TARGET_REGISTRY
+        default: ""
+
+      docker-target-base-path:
+        type: string
+        description: Target base path for variable substitution (optional)
+        env_var: TARGET_BASE_PATH
+        default: ""
+
+      is-release:
+        type: string
+        description: Release flag for variable substitution (optional)
+        env_var: IS_RELEASE
+        default: ""
+
+      substitution-token-style:
+        type: string
+        description: Token delimiter syntax for variables
+        env_var: SUBSTITUTION_TOKEN_STYLE
+        default: shell
+        allowed_values:
+          - shell
+          - mustache
+          - helm
+          - erb
+          - github-actions
+          - blade
+          - stringtemplate
+          - ognl
+          - t4
+          - swift
+
+      token-name-style:
+        type: string
+        description: Case style for token names in manifests
+        env_var: TOKEN_NAME_STYLE
+        default: PascalCase
+        allowed_values:
+          - PascalCase
+          - camelCase
+          - lower_snake
+          - UPPER_SNAKE
+          - lower-kebab
+          - UPPER-KEBAB
+          - lower.dot
+          - UPPER.DOT
+          - ALL
+
+      token-name-validation:
+        type: string
+        description: How to validate user token names (MATCH = must match token-name-style, ALL = accept any valid name)
+        env_var: TOKEN_NAME_VALIDATION
+        default: MATCH
+
+      allow-builtin-token-override:
+        type: boolean
+        description: Allow user tokens to override built-in tokens (for template/reusable projects)
+        env_var: ALLOW_BUILTIN_TOKEN_OVERRIDE
+        default: false
+
+      config-sub-path:
+        type: string
+        description: Directory containing user-defined token files (relative)
+        env_var: CONFIG_SUB_PATH
+        default: src/config
+
+      config-value-trailing-newline:
+        type: string
+        description: How to handle trailing newlines in config values
+        env_var: CONFIG_VALUE_TRAILING_NEWLINE
+        default: strip-for-single-line
+        allowed_values:
+          - strip-for-single-line
+          - preserve-all
+          - always-strip-one-newline
+
+      log-error-prefix:
+        type: string
+        description: Prefix for error messages
+        env_var: LOG_ERROR_PREFIX
+        default: ""
+
+      log-error-suffix:
+        type: string
+        description: Suffix for error messages
+        env_var: LOG_ERROR_SUFFIX
+        default: ""
+
+    outputs:
+      manifests-zip-sub-path:
+        type: string
+        description: Directory containing the zip file (relative)
+        env_var: MANIFESTS_ZIP_SUB_PATH
+
+      manifests-zip-file-name:
+        type: string
+        description: Filename of the zip
+        env_var: MANIFESTS_ZIP_FILE_NAME
+
+    exit_codes:
+      "0": Success
+      "1": Validation or packaging failure
+
 internals:
   docker-build-shared:
     description: Shared functions for docker build scripts
