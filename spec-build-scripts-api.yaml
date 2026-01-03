@@ -376,12 +376,12 @@ entrypoints:
         allowed_values:
           - PascalCase
           - camelCase
-          - snake_case
-          - SCREAMING_SNAKE_CASE
+          - lower_snake
+          - UPPER_SNAKE
           - kebab-case
-          - SCREAMING-KEBAB-CASE
-          - flatcase
-          - UPPERFLATCASE
+          - lower.dot
+          - UPPER.DOT
+          - ALL
 
       token-name-validation:
         type: string
