@@ -378,7 +378,8 @@ entrypoints:
           - camelCase
           - lower_snake
           - UPPER_SNAKE
-          - kebab-case
+          - lower-kebab
+          - UPPER-KEBAB
           - lower.dot
           - UPPER.DOT
           - ALL
