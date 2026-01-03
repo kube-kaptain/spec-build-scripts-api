@@ -811,6 +811,40 @@ entrypoints:
       "0": Success
       "1": Validation or packaging failure
 
+  kubernetes-manifests-repo-provider-package:
+    description: |
+      Selector script that dispatches to repo provider package plugins.
+      Packages manifests for the repo provider (e.g., builds docker image) but does NOT publish.
+    inputs:
+      manifests-repo-provider-type:
+        type: string
+        description: Type of repo provider to use
+        env_var: MANIFESTS_REPO_PROVIDER_TYPE
+        default: docker
+
+      log-error-prefix:
+        type: string
+        description: Prefix for error messages
+        env_var: LOG_ERROR_PREFIX
+        default: ""
+
+      log-error-suffix:
+        type: string
+        description: Suffix for error messages
+        env_var: LOG_ERROR_SUFFIX
+        default: ""
+
+    outputs: {}
+
+    exit_codes:
+      "0": Success
+      "1": Unknown repo provider type (package script does not exist)
+      "2": Repo provider type package script is not executable
+
+    notes: |
+      Router script - all other inputs are passed through to the selected plugin.
+      Available providers discovered from plugins/kubernetes-manifests-repo-providers/
+
 internals:
   docker-build-shared:
     description: Shared functions for docker build scripts
