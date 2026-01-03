@@ -946,14 +946,16 @@ internals:
         stdout: true
 
   prepare-substitution-tokens:
-    description: Prepare token values for Dockerfile substitution
+    description: Prepare token values for substitution
     called_by:
       - docker-build-dockerfile
+      - kubernetes-manifests-package
 
   substitute-tokens-from-dir:
     description: Perform token substitution on files
     called_by:
       - docker-build-dockerfile
+      - kubernetes-manifests-package
 
 deprecations:
   - old: BLOCK_SLASHES
