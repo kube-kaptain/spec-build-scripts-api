@@ -845,6 +845,49 @@ entrypoints:
       Router script - all other inputs are passed through to the selected plugin.
       Available providers discovered from plugins/kubernetes-manifests-repo-providers/
 
+  kubernetes-manifests-repo-provider-publish:
+    description: |
+      Selector script that dispatches to repo provider publish plugins.
+      Publishes packaged manifests via the repo provider (e.g., pushes docker image).
+    inputs:
+      manifests-repo-provider-type:
+        type: string
+        description: Type of repo provider to use
+        env_var: MANIFESTS_REPO_PROVIDER_TYPE
+        default: docker
+
+      log-error-prefix:
+        type: string
+        description: Prefix for error messages
+        env_var: LOG_ERROR_PREFIX
+        default: ""
+
+      log-error-suffix:
+        type: string
+        description: Suffix for error messages
+        env_var: LOG_ERROR_SUFFIX
+        default: ""
+
+    outputs:
+      manifests-uri:
+        type: string
+        description: Reference to published manifests (format depends on repo provider)
+        env_var: MANIFESTS_URI
+
+      manifests-published:
+        type: boolean
+        description: Whether manifests were published
+        env_var: MANIFESTS_PUBLISHED
+
+    exit_codes:
+      "0": Success
+      "1": Unknown repo provider type (publish script does not exist)
+      "2": Repo provider type publish script is not executable
+
+    notes: |
+      Router script - all other inputs are passed through to the selected plugin.
+      Available providers discovered from plugins/kubernetes-manifests-repo-providers/
+
 internals:
   docker-build-shared:
     description: Shared functions for docker build scripts
