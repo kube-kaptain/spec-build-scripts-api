@@ -76,6 +76,22 @@ tool_requirements:
     homepage: https://infozip.sourceforge.net
     notes: Required for manifest packaging
 
+  - name: curl
+    binary: curl
+    min_version: "7.50"
+    version_check: "curl --version | head -1"
+    version_pattern: "curl ([0-9]+\\.[0-9]+)"
+    homepage: https://curl.se
+    notes: Required by cloud login plugins for API calls. Keep usage to basic features.
+
+  - name: jq
+    binary: jq
+    min_version: "1.5"
+    version_check: "jq --version"
+    version_pattern: "jq-([0-9]+\\.[0-9]+)"
+    homepage: https://jqlang.github.io/jq/
+    notes: Required by spec-validate for JSON parsing. Keep usage to basic features.
+
 entrypoints:
   basic-quality-checks:
     description: |
