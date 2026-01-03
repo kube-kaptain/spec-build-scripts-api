@@ -60,6 +60,22 @@ tool_requirements:
     download: https://docs.docker.com/get-docker/
     notes: Required for image building and registry operations
 
+  - name: awk
+    binary: awk
+    min_version: "2"
+    max_version: "2"
+    version_check: "echo '1.2.3' | awk -F. '{print $2}'"
+    version_pattern: "([0-9]+)"
+    notes: Functional check disguised as version check - outputs "2" if awk works. POSIX awk only - no gawk extensions.
+
+  - name: Zip 3.0 by Info-Zip
+    binary: zip
+    min_version: "3.0"
+    version_check: "zip --version | head -2 | tail -1"
+    version_pattern: "([0-9]+\\.[0-9]+)"
+    homepage: https://infozip.sourceforge.net
+    notes: Required for manifest packaging
+
 entrypoints:
   basic-quality-checks:
     description: |
