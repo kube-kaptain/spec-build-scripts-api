@@ -989,6 +989,25 @@ internals:
       - docker-build-dockerfile
       - kubernetes-manifests-package
 
+  format-project-title:
+    description: Format lower-kebab style project name into display title
+    called_by:
+      - versions-and-naming (workflow)
+    inputs:
+      project-name:
+        type: string
+        description: Project name in lower-kebab naming style (e.g., buildon-github-actions)
+        positional: true
+        required: true
+    outputs:
+      title:
+        type: string
+        description: Formatted title (e.g., Buildon GitHub Actions)
+        stdout: true
+    notes: |
+      Handles special words: API, GitHub, AWS, GCP, CLI, JSON, YAML, etc.
+      Used for GitHub release titles.
+
 deprecations:
   - old: BLOCK_SLASHES
     new: BLOCK_SLASH_CONTAINING_BRANCHES
