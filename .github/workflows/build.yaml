@@ -1,0 +1,20 @@
+name: Spec Check Filter Release
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    uses: kube-kaptain/buildon-github-actions/.github/workflows/spec-check-filter-release.yaml@1.0.34
+    permissions:
+      contents: write
+      packages: write
+      checks: write
+    with:
+      spec-type: api
+      spec-validation-type: python3-jsonschema
+      block-conventional-commits: true
+      block-slash-containing-branches: true
