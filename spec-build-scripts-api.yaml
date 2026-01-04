@@ -1100,17 +1100,17 @@ internals:
     inputs:
       project-name:
         type: string
-        description: Project name in lower-kebab naming style (e.g., buildon-github-actions)
+        description: Project name in lower-kebab naming style (e.g., kaptain-build-scripts)
         positional: true
         required: true
     outputs:
       title:
         type: string
-        description: Formatted title (e.g., Buildon GitHub Actions)
+        description: Formatted title (e.g., Kaptain Build Scripts)
         stdout: true
     notes: |
       Handles special words: API, GitHub, AWS, GCP, CLI, JSON, YAML, etc.
-      Used for GitHub release titles.
+      Used for display purposes. For example in platform specific GitHub release titles.
 
 deprecations:
   - old: BLOCK_SLASHES
