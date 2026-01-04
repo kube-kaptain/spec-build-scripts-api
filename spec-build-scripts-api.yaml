@@ -495,6 +495,11 @@ entrypoints:
         description: Full image reference for push step
         env_var: DOCKER_TARGET_IMAGE_FULL_URI
 
+      docker-substituted-sub-path:
+        type: string
+        description: Directory containing substituted files (for downstream use)
+        env_var: DOCKER_SUBSTITUTED_SUB_PATH
+
     exit_codes:
       "0": Success
       "1": Validation failure (missing Dockerfile, wrong case, image exists, docker issues)
