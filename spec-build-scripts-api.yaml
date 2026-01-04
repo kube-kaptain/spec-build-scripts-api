@@ -112,12 +112,22 @@ entrypoints:
         default: []
         separator: ","
 
+      block-slashes:
+        type: boolean
+        description: Reject branch names containing forward slashes
+        env_var: BLOCK_SLASHES
+        default: false
+        added_in_version: "0.0"
+        deprecated_in_version: "0.1"
+        replaced_by: block-slash-containing-branches
+
       block-slash-containing-branches:
         type: boolean
         description: Reject branch names containing forward slashes
         env_var: BLOCK_SLASH_CONTAINING_BRANCHES
         default: false
-        deprecated_alias: BLOCK_SLASHES
+        deprecated_alias: block-slashes
+        added_in_version: "0.1"
 
       block-double-hyphen-containing-branches:
         type: boolean
@@ -1114,7 +1124,8 @@ internals:
       Used for display purposes. For example in platform specific GitHub release titles.
 
 deprecations:
-  - old: BLOCK_SLASHES
-    new: BLOCK_SLASH_CONTAINING_BRANCHES
-    deprecated_in: "1.0.25"
+  BLOCK_SLASHES:
+    replaced_by: BLOCK_SLASH_CONTAINING_BRANCHES
+    added_in_version: "0.0"
+    deprecated_in_version: "0.1"
     notes: Renamed for clarity. Both names currently work.
