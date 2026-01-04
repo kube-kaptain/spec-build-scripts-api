@@ -178,21 +178,21 @@ entrypoints:
       "2": |
         Bad branch name. Checks:
         - Auto-generated pattern: always-on (branch names in the form creator-patch-N)
-        - Slashes: default off (turn on with block-slash-containing-branches=true)
-        - Double hyphens: default on (turn off with block-double-hyphen-containing-branches=false)
-        - Conventional prefixes: default off (turn on with require-conventional-branches=true)
+        - Slashes: default off (turn on with BLOCK_SLASH_CONTAINING_BRANCHES=true)
+        - Double hyphens: default on (turn off with BLOCK_DOUBLE_HYPHEN_CONTAINING_BRANCHES=false)
+        - Conventional prefixes: default off (turn on with REQUIRE_CONVENTIONAL_BRANCHES=true)
       "4": |
         Bad commit message. Checks:
         - Web UI auto-generated: always-on ("Update X", "Create X", and "Delete X" prefixes are bad even if hand written)
-        - Require conventional format: default off (turn on with require-conventional-commits=true)
-        - Block conventional format: default off (turn on with block-conventional-commits=true)
+        - Require conventional format: default off (turn on with REQUIRE_CONVENTIONAL_COMMITS=true)
+        - Block conventional format: default off (turn on with BLOCK_CONVENTIONAL_COMMITS=true)
       "8": |
         Bad branch contents. Checks:
         - Merge commit detected: always-on (No matter how they got there, eg back-merge from main, this isn't okay)
         - Not rebased onto target: always-on (If not up to date with respect the target, we cannot guarantee correctness after merge)
       "16": |
         Bad merge candidate setup. Checks:
-        - Invalid target branch: always-on (controlled by default-branch and additional-release-branches)
+        - Invalid target branch: always-on (controlled by DEFAULT_BRANCH and ADDITIONAL_RELEASE_BRANCHES)
         - Target branch not found: always-on
       '32': Reserved
       '64': Reserved
