@@ -1008,6 +1008,52 @@ internals:
       Handles special words: API, GitHub, AWS, GCP, CLI, JSON, YAML, etc.
       Used for GitHub release titles.
 
+  spec-package-prepare:
+    description: Prepare spec files for packaging into OCI image
+    called_by:
+      - spec-check-filter-release (workflow)
+    inputs:
+      project-name:
+        type: string
+        description: Project name (used to find ${PROJECT_NAME}.yaml)
+        env_var: PROJECT_NAME
+        required: true
+      version:
+        type: string
+        description: Version string for output filenames
+        env_var: VERSION
+        required: true
+      output-sub-path:
+        type: string
+        description: Base directory for output files
+        env_var: OUTPUT_SUB_PATH
+        required: true
+      spec-packaging-base-image:
+        type: string
+        description: Base image for generated Dockerfile
+        env_var: SPEC_PACKAGING_BASE_IMAGE
+        default: scratch
+    outputs:
+      spec-sub-path:
+        type: string
+        description: Directory containing spec files (relative)
+        env_var: SPEC_SUB_PATH
+      spec-yaml:
+        type: string
+        description: Filename of versioned YAML spec
+        env_var: SPEC_YAML
+      spec-json:
+        type: string
+        description: Filename of versioned JSON spec
+        env_var: SPEC_JSON
+      dockerfile-sub-path:
+        type: string
+        description: Directory containing generated Dockerfile
+        env_var: DOCKERFILE_SUB_PATH
+    notes: |
+      Copies spec YAML, converts to JSON, generates Dockerfile.
+      Token substitution handled by docker build step.
+
 deprecations:
   - old: BLOCK_SLASHES
     new: BLOCK_SLASH_CONTAINING_BRANCHES
