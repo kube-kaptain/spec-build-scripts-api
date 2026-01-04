@@ -960,7 +960,7 @@ internals:
         description: Versions to sort (one per line on stdin)
 
     outputs:
-      sorted:
+      stdout:
         type: string
         description: Sorted versions, one per line
         stdout: true
@@ -987,7 +987,7 @@ internals:
         position: 1
         required: true
     outputs:
-      TITLE:
+      stdout:
         type: string
         description: Formatted title (e.g., Kaptain Build Scripts)
         stdout: true
