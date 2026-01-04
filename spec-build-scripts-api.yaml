@@ -4,6 +4,7 @@
 # As-built from buildon-github-actions
 
 $schema: https://github.com/kube-kaptain/spec-scripts-api-schema/releases/download/0.9/spec-scripts-api-schema-0.9.json
+$id: https://github.com/kube-kaptain/${ProjectName}/releases/download/${Version}/${ProjectName}-${Version}.yaml
 
 name: ${ProjectName}
 version: "${Version}"
