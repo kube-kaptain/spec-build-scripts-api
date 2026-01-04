@@ -3,7 +3,8 @@
 # Kaptain Build Scripts API Specification
 # As-built from buildon-github-actions
 
-$schema: https://github.com/kube-kaptain/spec-scripts-api-schema/releases/download/0.6/spec-scripts-api-schema-0.6.json
+$schema: https://github.com/kube-kaptain/spec-scripts-api-schema/releases/download/0.9/spec-scripts-api-schema-0.9.json
+$id: https://github.com/kube-kaptain/${ProjectName}/releases/download/${Version}/${ProjectName}-${Version}.yaml
 
 name: ${ProjectName}
 version: "${Version}"
@@ -98,78 +99,75 @@ entrypoints:
       Validate branch naming conventions, branch quality, merge candidate setup, and commit message quality.
       Designed to run as the first check in every build to fail fast on quality violations and poor practice.
     inputs:
-      default-branch:
+      DEFAULT_BRANCH:
         type: string
         description: The default/release branch name
-        env_var: DEFAULT_BRANCH
         default: main
 
-      additional-release-branches:
+      ADDITIONAL_RELEASE_BRANCHES:
         type: array
         description: Additional branches treated as release branches
-        env_var: ADDITIONAL_RELEASE_BRANCHES
         default: []
         separator: ","
 
-      block-slash-containing-branches:
+      BLOCK_SLASHES:
         type: boolean
         description: Reject branch names containing forward slashes
-        env_var: BLOCK_SLASH_CONTAINING_BRANCHES
+        default: false
+        added_in_version: "0.0"
+        deprecated_in_version: "0.1"
+        replaced_by: BLOCK_SLASH_CONTAINING_BRANCHES
+
+      BLOCK_SLASH_CONTAINING_BRANCHES:
+        type: boolean
+        description: Reject branch names containing forward slashes
         default: false
         deprecated_alias: BLOCK_SLASHES
+        added_in_version: "0.1"
 
-      block-double-hyphen-containing-branches:
+      BLOCK_DOUBLE_HYPHEN_CONTAINING_BRANCHES:
         type: boolean
         description: Reject branch names containing double hyphens (typo detection)
-        env_var: BLOCK_DOUBLE_HYPHEN_CONTAINING_BRANCHES
         default: true
 
-      require-conventional-branches:
+      REQUIRE_CONVENTIONAL_BRANCHES:
         type: boolean
         description: Require conventional branch prefixes (feature/, fix/, etc.)
-        env_var: REQUIRE_CONVENTIONAL_BRANCHES
         default: false
 
-      require-conventional-commits:
+      REQUIRE_CONVENTIONAL_COMMITS:
         type: boolean
         description: Require conventional commit message format
-        env_var: REQUIRE_CONVENTIONAL_COMMITS
         default: false
 
-      block-conventional-commits:
+      BLOCK_CONVENTIONAL_COMMITS:
         type: boolean
         description: Block conventional commit format (mutually exclusive with require)
-        env_var: BLOCK_CONVENTIONAL_COMMITS
         default: false
 
-      target-branch:
+      TARGET_BRANCH:
         type: string
         description: Target branch for rebase checks
-        env_var: TARGET_BRANCH
         default: "${DEFAULT_BRANCH}"
 
-      merge-candidate-branch:
+      MERGE_CANDIDATE_BRANCH:
         type: string
         description: Source branch being checked
-        env_var: MERGE_CANDIDATE_BRANCH
         default: "(current branch)"
 
-      merge-candidate-creator:
+      MERGE_CANDIDATE_CREATOR:
         type: string
         description: Username or ID of the merge candidate creator (for bot detection)
-        env_var: MERGE_CANDIDATE_CREATOR
         default: ""
 
-      log-error-prefix:
+      LOG_ERROR_PREFIX:
         type: string
         description: Prefix for error messages (CI integration)
-        env_var: LOG_ERROR_PREFIX
         default: ""
 
-      log-error-suffix:
+      LOG_ERROR_SUFFIX:
         type: string
         description: Suffix for error messages (CI integration)
-        env_var: LOG_ERROR_SUFFIX
         default: ""
 
     outputs: {}
@@ -180,21 +178,21 @@ entrypoints:
       "2": |
         Bad branch name. Checks:
         - Auto-generated pattern: always-on (branch names in the form creator-patch-N)
-        - Slashes: default off (turn on with block-slash-containing-branches=true)
-        - Double hyphens: default on (turn off with block-double-hyphen-containing-branches=false)
-        - Conventional prefixes: default off (turn on with require-conventional-branches=true)
+        - Slashes: default off (turn on with BLOCK_SLASH_CONTAINING_BRANCHES=true)
+        - Double hyphens: default on (turn off with BLOCK_DOUBLE_HYPHEN_CONTAINING_BRANCHES=false)
+        - Conventional prefixes: default off (turn on with REQUIRE_CONVENTIONAL_BRANCHES=true)
       "4": |
         Bad commit message. Checks:
         - Web UI auto-generated: always-on ("Update X", "Create X", and "Delete X" prefixes are bad even if hand written)
-        - Require conventional format: default off (turn on with require-conventional-commits=true)
-        - Block conventional format: default off (turn on with block-conventional-commits=true)
+        - Require conventional format: default off (turn on with REQUIRE_CONVENTIONAL_COMMITS=true)
+        - Block conventional format: default off (turn on with BLOCK_CONVENTIONAL_COMMITS=true)
       "8": |
         Bad branch contents. Checks:
         - Merge commit detected: always-on (No matter how they got there, eg back-merge from main, this isn't okay)
         - Not rebased onto target: always-on (If not up to date with respect the target, we cannot guarantee correctness after merge)
       "16": |
         Bad merge candidate setup. Checks:
-        - Invalid target branch: always-on (controlled by default-branch and additional-release-branches)
+        - Invalid target branch: always-on (controlled by DEFAULT_BRANCH and ADDITIONAL_RELEASE_BRANCHES)
         - Target branch not found: always-on
       '32': Reserved
       '64': Reserved
@@ -211,148 +209,124 @@ entrypoints:
       Calculate version numbers and generate naming for Docker images.
       Supports multiple version calculation strategies via plugins.
     inputs:
-      default-branch:
+      DEFAULT_BRANCH:
         type: string
         description: The default/release branch name
-        env_var: DEFAULT_BRANCH
         default: main
 
-      additional-release-branches:
+      ADDITIONAL_RELEASE_BRANCHES:
         type: array
         description: Additional branches treated as release branches
-        env_var: ADDITIONAL_RELEASE_BRANCHES
         default: []
         separator: ","
 
-      max-version-parts:
+      MAX_VERSION_PARTS:
         type: integer
         description: Maximum version depth (2, 3, or 4 parts)
-        env_var: MAX_VERSION_PARTS
         default: 3
         min: 2
         max: 4
 
-      tag-version-calculation-strategy:
+      TAG_VERSION_CALCULATION_STRATEGY:
         type: string
         description: Strategy plugin for version calculation
-        env_var: TAG_VERSION_CALCULATION_STRATEGY
         default: git-auto-closest-highest
         allowed_values:
           - git-auto-closest-highest
           - file-pattern-match
 
-      tag-version-pattern-type:
+      TAG_VERSION_PATTERN_TYPE:
         type: string
         description: Pattern type for file-based version extraction
-        env_var: TAG_VERSION_PATTERN_TYPE
         default: dockerfile-env-kubectl
 
-      tag-version-prefix-parts:
+      TAG_VERSION_PREFIX_PARTS:
         type: integer
         description: Number of version prefix parts to preserve
-        env_var: TAG_VERSION_PREFIX_PARTS
 
-      dockerfile-sub-path:
+      DOCKERFILE_SUB_PATH:
         type: string
         description: Path to Dockerfile directory
-        env_var: DOCKERFILE_SUB_PATH
         default: ""
 
-      tag-version-source-sub-path:
+      TAG_VERSION_SOURCE_SUB_PATH:
         type: string
         description: Subdirectory containing version source
-        env_var: TAG_VERSION_SOURCE_SUB_PATH
         default: ""
 
-      tag-version-source-file-name:
+      TAG_VERSION_SOURCE_FILE_NAME:
         type: string
         description: Filename containing version
-        env_var: TAG_VERSION_SOURCE_FILE_NAME
         default: ""
 
-      tag-version-source-custom-pattern:
+      TAG_VERSION_SOURCE_CUSTOM_PATTERN:
         type: string
         description: Custom regex pattern for version extraction
-        env_var: TAG_VERSION_SOURCE_CUSTOM_PATTERN
         default: ""
 
-      build-mode:
+      BUILD_MODE:
         type: string
         description: Build mode that controls release eligibility, and publishing of artifacts (including a git tag)
-        env_var: BUILD_MODE
         default: local
         allowed_values:
           - local
           - build_server
         notes: Defaults to 'local' (safe, no releases). CI pipelines must explicitly set 'build_server' to enable pushing the generated tag and publishing artifacts. Operators with bootstrap or recovery build requirements and write access to necessary repos must configure this deliberately.
 
-      log-error-prefix:
+      LOG_ERROR_PREFIX:
         type: string
         description: Prefix for error messages
-        env_var: LOG_ERROR_PREFIX
         default: ""
 
-      log-error-suffix:
+      LOG_ERROR_SUFFIX:
         type: string
         description: Suffix for error messages
-        env_var: LOG_ERROR_SUFFIX
         default: ""
 
     outputs:
-      version:
+      VERSION:
         type: string
         description: Full calculated version (e.g., 1.2.3)
-        env_var: VERSION
 
-      version-major:
+      VERSION_MAJOR:
         type: string
         description: Major version number
-        env_var: VERSION_MAJOR
 
-      version-minor:
+      VERSION_MINOR:
         type: string
         description: Minor version number
-        env_var: VERSION_MINOR
 
-      version-patch:
+      VERSION_PATCH:
         type: string
         description: Patch version number
-        env_var: VERSION_PATCH
 
-      version-2-part:
+      VERSION_2_PART:
         type: string
         description: Version padded/truncated to 2 parts
-        env_var: VERSION_2_PART
 
-      version-3-part:
+      VERSION_3_PART:
         type: string
         description: Version padded/truncated to 3 parts
-        env_var: VERSION_3_PART
 
-      version-4-part:
+      VERSION_4_PART:
         type: string
         description: Version padded/truncated to 4 parts
-        env_var: VERSION_4_PART
 
-      docker-tag:
+      DOCKER_TAG:
         type: string
         description: Docker tag (version for release, version-PRERELEASE otherwise)
-        env_var: DOCKER_TAG
 
-      docker-image-name:
+      DOCKER_IMAGE_NAME:
         type: string
         description: Docker image name (prefix/project-name)
-        env_var: DOCKER_IMAGE_NAME
 
-      is-release:
+      IS_RELEASE:
         type: boolean
         description: Whether this is a release build
-        env_var: IS_RELEASE
 
-      project-name:
+      PROJECT_NAME:
         type: string
         description: Repository/project name
-        env_var: PROJECT_NAME
 
     exit_codes:
       "0": Success
@@ -364,46 +338,39 @@ entrypoints:
       Build a Docker image from a Dockerfile.
       Handles token substitution, squashing, and label injection.
     inputs:
-      docker-target-registry:
+      DOCKER_TARGET_REGISTRY:
         type: string
         description: Target container registry hostname
-        env_var: DOCKER_TARGET_REGISTRY
         required: true
 
-      docker-target-base-path:
+      DOCKER_TARGET_BASE_PATH:
         type: string
         description: Path between registry and image name
-        env_var: DOCKER_TARGET_BASE_PATH
         default: ""
 
-      dockerfile-sub-path:
+      DOCKERFILE_SUB_PATH:
         type: string
         description: Path to Dockerfile directory
-        env_var: DOCKERFILE_SUB_PATH
         default: src/docker
 
-      output-sub-path:
+      OUTPUT_SUB_PATH:
         type: string
         description: Build output directory
-        env_var: OUTPUT_SUB_PATH
         default: target
 
-      squash:
+      SQUASH:
         type: boolean
         description: Squash image layers
-        env_var: SQUASH
         default: true
 
-      no-cache:
+      NO_CACHE:
         type: boolean
         description: Disable Docker layer caching
-        env_var: NO_CACHE
         default: true
 
-      substitution-token-style:
+      SUBSTITUTION_TOKEN_STYLE:
         type: string
         description: Token substitution syntax style
-        env_var: SUBSTITUTION_TOKEN_STYLE
         default: shell
         allowed_values:
           - shell
@@ -417,10 +384,9 @@ entrypoints:
           - t4
           - swift
 
-      token-name-style:
+      TOKEN_NAME_STYLE:
         type: string
         description: Case style for token names
-        env_var: TOKEN_NAME_STYLE
         default: PascalCase
         allowed_values:
           - PascalCase
@@ -433,88 +399,74 @@ entrypoints:
           - UPPER.DOT
           - ALL
 
-      token-name-validation:
+      TOKEN_NAME_VALIDATION:
         type: string
         description: Token name validation mode
-        env_var: TOKEN_NAME_VALIDATION
         default: MATCH
 
-      allow-builtin-token-override:
+      ALLOW_BUILTIN_TOKEN_OVERRIDE:
         type: boolean
         description: Allow overriding built-in tokens
-        env_var: ALLOW_BUILTIN_TOKEN_OVERRIDE
         default: false
 
-      config-sub-path:
+      CONFIG_SUB_PATH:
         type: string
         description: Configuration directory path
-        env_var: CONFIG_SUB_PATH
         default: src/config
 
-      config-value-trailing-newline:
+      CONFIG_VALUE_TRAILING_NEWLINE:
         type: string
         description: Trailing newline handling for config values
-        env_var: CONFIG_VALUE_TRAILING_NEWLINE
         default: strip-for-single-line
 
-      docker-image-name:
+      DOCKER_IMAGE_NAME:
         type: string
         description: Target image name (from versions-and-naming)
-        env_var: DOCKER_IMAGE_NAME
         required: true
 
-      docker-tag:
+      DOCKER_TAG:
         type: string
         description: Target image tag (from versions-and-naming)
-        env_var: DOCKER_TAG
         required: true
 
-      version:
+      VERSION:
         type: string
         description: Version string (from versions-and-naming)
-        env_var: VERSION
         required: true
 
-      project-name:
+      PROJECT_NAME:
         type: string
         description: Project name (from versions-and-naming)
-        env_var: PROJECT_NAME
         required: true
 
-      log-error-prefix:
+      LOG_ERROR_PREFIX:
         type: string
         description: Prefix for error messages
-        env_var: LOG_ERROR_PREFIX
         default: ""
 
-      log-error-suffix:
+      LOG_ERROR_SUFFIX:
         type: string
         description: Suffix for error messages
-        env_var: LOG_ERROR_SUFFIX
         default: ""
 
-      log-warning-prefix:
+      LOG_WARNING_PREFIX:
         type: string
         description: Prefix for warning messages
-        env_var: LOG_WARNING_PREFIX
         default: ""
 
-      log-warning-suffix:
+      LOG_WARNING_SUFFIX:
         type: string
         description: Suffix for warning messages
-        env_var: LOG_WARNING_SUFFIX
         default: ""
 
     outputs:
-      docker-target-image-full-uri:
+      DOCKER_TARGET_IMAGE_FULL_URI:
         type: string
         description: Full image reference for push step
-        env_var: DOCKER_TARGET_IMAGE_FULL_URI
 
-      docker-substituted-sub-path:
+      DOCKER_SUBSTITUTED_SUB_PATH:
         type: string
         description: Directory containing substituted files (for downstream use)
-        env_var: DOCKER_SUBSTITUTED_SUB_PATH
 
     exit_codes:
       "0": Success
@@ -526,88 +478,74 @@ entrypoints:
       Pull an upstream image and retag it for your registry.
       Used for repackaging third-party images.
     inputs:
-      docker-source-registry:
+      DOCKER_SOURCE_REGISTRY:
         type: string
         description: Source container registry hostname
-        env_var: DOCKER_SOURCE_REGISTRY
         required: true
 
-      docker-source-base-path:
+      DOCKER_SOURCE_BASE_PATH:
         type: string
         description: Source path between registry and image name
-        env_var: DOCKER_SOURCE_BASE_PATH
         default: ""
 
-      docker-source-image-name:
+      DOCKER_SOURCE_IMAGE_NAME:
         type: string
         description: Source image name
-        env_var: DOCKER_SOURCE_IMAGE_NAME
         required: true
 
-      docker-source-tag:
+      DOCKER_SOURCE_TAG:
         type: string
         description: Source image tag
-        env_var: DOCKER_SOURCE_TAG
         required: true
 
-      docker-target-registry:
+      DOCKER_TARGET_REGISTRY:
         type: string
         description: Target container registry hostname
-        env_var: DOCKER_TARGET_REGISTRY
         required: true
 
-      docker-target-base-path:
+      DOCKER_TARGET_BASE_PATH:
         type: string
         description: Target path between registry and image name
-        env_var: DOCKER_TARGET_BASE_PATH
         default: ""
 
-      docker-image-name:
+      DOCKER_IMAGE_NAME:
         type: string
         description: Target image name (from versions-and-naming)
-        env_var: DOCKER_IMAGE_NAME
         required: true
 
-      docker-tag:
+      DOCKER_TAG:
         type: string
         description: Target image tag (from versions-and-naming)
-        env_var: DOCKER_TAG
         required: true
 
-      log-error-prefix:
+      LOG_ERROR_PREFIX:
         type: string
         description: Prefix for error messages
-        env_var: LOG_ERROR_PREFIX
         default: ""
 
-      log-error-suffix:
+      LOG_ERROR_SUFFIX:
         type: string
         description: Suffix for error messages
-        env_var: LOG_ERROR_SUFFIX
         default: ""
 
-      log-warning-prefix:
+      LOG_WARNING_PREFIX:
         type: string
         description: Prefix for warning messages
-        env_var: LOG_WARNING_PREFIX
         default: ""
 
-      log-warning-suffix:
+      LOG_WARNING_SUFFIX:
         type: string
         description: Suffix for warning messages
-        env_var: LOG_WARNING_SUFFIX
         default: ""
 
     outputs:
-      docker-source-image-full-uri:
+      DOCKER_SOURCE_IMAGE_FULL_URI:
         type: string
         description: Full source image reference
-        env_var: DOCKER_SOURCE_IMAGE_FULL_URI
 
-      docker-target-image-full-uri:
+      DOCKER_TARGET_IMAGE_FULL_URI:
         type: string
         description: Full target image reference
-        env_var: DOCKER_TARGET_IMAGE_FULL_URI
 
     exit_codes:
       "0": Success
@@ -619,23 +557,20 @@ entrypoints:
       Push a Docker image to registry.
       Only pushes on release builds.
     inputs:
-      docker-image-full-uri:
+      DOCKER_IMAGE_FULL_URI:
         type: string
         description: Full image reference to push
-        env_var: DOCKER_IMAGE_FULL_URI
         required: true
 
-      is-release:
+      IS_RELEASE:
         type: boolean
         description: Only push if true
-        env_var: IS_RELEASE
         default: false
 
     outputs:
-      image-pushed:
+      IMAGE_PUSHED:
         type: boolean
         description: Whether image was pushed
-        env_var: IMAGE_PUSHED
 
     exit_codes:
       "0": Success (pushed or skipped)
@@ -649,49 +584,42 @@ entrypoints:
       Authenticate to one or more container registries.
       Supports multiple providers via plugin architecture.
     inputs:
-      config:
+      CONFIG:
         type: string
         description: YAML configuration with registry definitions
-        env_var: CONFIG
         required: true
 
-      secret-method:
+      SECRET_METHOD:
         type: string
         description: Method for retrieving secrets
-        env_var: SECRET_METHOD
         required: true
         allowed_values:
           - github
           - env
 
-      secrets-json:
+      SECRETS_JSON:
         type: string
         description: JSON object containing secrets
-        env_var: SECRETS_JSON
         default: "{}"
 
-      log-error-prefix:
+      LOG_ERROR_PREFIX:
         type: string
         description: Prefix for error messages
-        env_var: LOG_ERROR_PREFIX
         default: ""
 
-      log-error-suffix:
+      LOG_ERROR_SUFFIX:
         type: string
         description: Suffix for error messages
-        env_var: LOG_ERROR_SUFFIX
         default: ""
 
-      log-group-start:
+      LOG_GROUP_START:
         type: string
         description: Group start marker (CI integration)
-        env_var: LOG_GROUP_START
         default: ""
 
-      log-group-end:
+      LOG_GROUP_END:
         type: string
         description: Group end marker (CI integration)
-        env_var: LOG_GROUP_END
         default: ""
 
     outputs: {}
@@ -716,70 +644,59 @@ entrypoints:
       Package Kubernetes manifests into a zip with variable substitution.
       Prepares manifests for deployment by replacing tokens with actual values.
     inputs:
-      manifests-sub-path:
+      MANIFESTS_SUB_PATH:
         type: string
         description: Directory containing Kubernetes manifests (relative)
-        env_var: MANIFESTS_SUB_PATH
         default: src/kubernetes
 
-      project-name:
+      PROJECT_NAME:
         type: string
         description: Project name for variable substitution
-        env_var: PROJECT_NAME
         required: true
 
-      version:
+      VERSION:
         type: string
         description: Version for variable substitution and naming
-        env_var: VERSION
         required: true
 
-      output-sub-path:
+      OUTPUT_SUB_PATH:
         type: string
         description: Build output directory (relative)
-        env_var: OUTPUT_SUB_PATH
         default: target
 
-      docker-tag:
+      DOCKER_TAG:
         type: string
         description: Docker tag for variable substitution (optional)
-        env_var: DOCKER_TAG
         default: ""
 
-      docker-image-name:
+      DOCKER_IMAGE_NAME:
         type: string
         description: Docker image name for variable substitution (optional)
-        env_var: DOCKER_IMAGE_NAME
         default: ""
 
-      docker-image-full-uri:
+      DOCKER_IMAGE_FULL_URI:
         type: string
         description: Full Docker image URI for variable substitution (optional)
-        env_var: DOCKER_IMAGE_FULL_URI
         default: ""
 
-      docker-target-registry:
+      TARGET_REGISTRY:
         type: string
         description: Target registry for variable substitution (optional)
-        env_var: TARGET_REGISTRY
         default: ""
 
-      docker-target-base-path:
+      TARGET_BASE_PATH:
         type: string
         description: Target base path for variable substitution (optional)
-        env_var: TARGET_BASE_PATH
         default: ""
 
-      is-release:
+      IS_RELEASE:
         type: string
         description: Release flag for variable substitution (optional)
-        env_var: IS_RELEASE
         default: ""
 
-      substitution-token-style:
+      SUBSTITUTION_TOKEN_STYLE:
         type: string
         description: Token delimiter syntax for variables
-        env_var: SUBSTITUTION_TOKEN_STYLE
         default: shell
         allowed_values:
           - shell
@@ -793,10 +710,9 @@ entrypoints:
           - t4
           - swift
 
-      token-name-style:
+      TOKEN_NAME_STYLE:
         type: string
         description: Case style for token names in manifests
-        env_var: TOKEN_NAME_STYLE
         default: PascalCase
         allowed_values:
           - PascalCase
@@ -809,56 +725,48 @@ entrypoints:
           - UPPER.DOT
           - ALL
 
-      token-name-validation:
+      TOKEN_NAME_VALIDATION:
         type: string
         description: How to validate user token names (MATCH = must match token-name-style, ALL = accept any valid name)
-        env_var: TOKEN_NAME_VALIDATION
         default: MATCH
 
-      allow-builtin-token-override:
+      ALLOW_BUILTIN_TOKEN_OVERRIDE:
         type: boolean
         description: Allow user tokens to override built-in tokens (for template/reusable projects)
-        env_var: ALLOW_BUILTIN_TOKEN_OVERRIDE
         default: false
 
-      config-sub-path:
+      CONFIG_SUB_PATH:
         type: string
         description: Directory containing user-defined token files (relative)
-        env_var: CONFIG_SUB_PATH
         default: src/config
 
-      config-value-trailing-newline:
+      CONFIG_VALUE_TRAILING_NEWLINE:
         type: string
         description: How to handle trailing newlines in config values
-        env_var: CONFIG_VALUE_TRAILING_NEWLINE
         default: strip-for-single-line
         allowed_values:
           - strip-for-single-line
           - preserve-all
           - always-strip-one-newline
 
-      log-error-prefix:
+      LOG_ERROR_PREFIX:
         type: string
         description: Prefix for error messages
-        env_var: LOG_ERROR_PREFIX
         default: ""
 
-      log-error-suffix:
+      LOG_ERROR_SUFFIX:
         type: string
         description: Suffix for error messages
-        env_var: LOG_ERROR_SUFFIX
         default: ""
 
     outputs:
-      manifests-zip-sub-path:
+      MANIFESTS_ZIP_SUB_PATH:
         type: string
         description: Directory containing the zip file (relative)
-        env_var: MANIFESTS_ZIP_SUB_PATH
 
-      manifests-zip-file-name:
+      MANIFESTS_ZIP_FILE_NAME:
         type: string
         description: Filename of the zip
-        env_var: MANIFESTS_ZIP_FILE_NAME
 
     exit_codes:
       "0": Success
@@ -869,22 +777,19 @@ entrypoints:
       Selector script that dispatches to repo provider package plugins.
       Packages manifests for the repo provider (e.g., builds docker image) but does NOT publish.
     inputs:
-      manifests-repo-provider-type:
+      MANIFESTS_REPO_PROVIDER_TYPE:
         type: string
         description: Type of repo provider to use
-        env_var: MANIFESTS_REPO_PROVIDER_TYPE
         default: docker
 
-      log-error-prefix:
+      LOG_ERROR_PREFIX:
         type: string
         description: Prefix for error messages
-        env_var: LOG_ERROR_PREFIX
         default: ""
 
-      log-error-suffix:
+      LOG_ERROR_SUFFIX:
         type: string
         description: Suffix for error messages
-        env_var: LOG_ERROR_SUFFIX
         default: ""
 
     outputs: {}
@@ -903,34 +808,29 @@ entrypoints:
       Selector script that dispatches to repo provider publish plugins.
       Publishes packaged manifests via the repo provider (e.g., pushes docker image).
     inputs:
-      manifests-repo-provider-type:
+      MANIFESTS_REPO_PROVIDER_TYPE:
         type: string
         description: Type of repo provider to use
-        env_var: MANIFESTS_REPO_PROVIDER_TYPE
         default: docker
 
-      log-error-prefix:
+      LOG_ERROR_PREFIX:
         type: string
         description: Prefix for error messages
-        env_var: LOG_ERROR_PREFIX
         default: ""
 
-      log-error-suffix:
+      LOG_ERROR_SUFFIX:
         type: string
         description: Suffix for error messages
-        env_var: LOG_ERROR_SUFFIX
         default: ""
 
     outputs:
-      manifests-uri:
+      MANIFESTS_URI:
         type: string
         description: Reference to published manifests (format depends on repo provider)
-        env_var: MANIFESTS_URI
 
-      manifests-published:
+      MANIFESTS_PUBLISHED:
         type: boolean
         description: Whether manifests were published
-        env_var: MANIFESTS_PUBLISHED
 
     exit_codes:
       "0": Success
@@ -944,43 +844,35 @@ entrypoints:
   spec-package-prepare:
     description: Prepare spec files for packaging into OCI image
     inputs:
-      project-name:
+      PROJECT_NAME:
         type: string
         description: Project name (used to find ${PROJECT_NAME}.yaml)
-        env_var: PROJECT_NAME
         required: true
-      version:
+      VERSION:
         type: string
         description: Version string for output filenames
-        env_var: VERSION
         required: true
-      output-sub-path:
+      OUTPUT_SUB_PATH:
         type: string
         description: Base directory for output files
-        env_var: OUTPUT_SUB_PATH
         required: true
-      spec-packaging-base-image:
+      SPEC_PACKAGING_BASE_IMAGE:
         type: string
         description: Base image for generated Dockerfile
-        env_var: SPEC_PACKAGING_BASE_IMAGE
         default: scratch
     outputs:
-      spec-sub-path:
+      SPEC_SUB_PATH:
         type: string
         description: Directory containing spec files (relative)
-        env_var: SPEC_SUB_PATH
-      spec-yaml:
+      SPEC_YAML:
         type: string
         description: Filename of versioned YAML spec
-        env_var: SPEC_YAML
-      spec-json:
+      SPEC_JSON:
         type: string
         description: Filename of versioned JSON spec
-        env_var: SPEC_JSON
-      dockerfile-sub-path:
+      DOCKERFILE_SUB_PATH:
         type: string
         description: Directory containing generated Dockerfile
-        env_var: DOCKERFILE_SUB_PATH
     exit_codes:
       "0": Success
       "1": Spec file not found
@@ -991,28 +883,24 @@ entrypoints:
   spec-validate:
     description: Validate spec file against its JSON schema
     inputs:
-      spec-type:
+      SPEC_TYPE:
         type: string
         description: Type of spec being validated
-        env_var: SPEC_TYPE
         required: true
         allowed_values:
           - schema
           - api
-      spec-sub-path:
+      SPEC_SUB_PATH:
         type: string
         description: Directory containing spec files (relative)
-        env_var: SPEC_SUB_PATH
         required: true
-      spec-json:
+      SPEC_JSON:
         type: string
         description: Filename of spec JSON file
-        env_var: SPEC_JSON
         required: true
-      spec-validation-type:
+      SPEC_VALIDATION_TYPE:
         type: string
         description: Validation method to use
-        env_var: SPEC_VALIDATION_TYPE
         default: basic
         allowed_values:
           - basic
@@ -1033,35 +921,30 @@ internals:
       - docker-build-dockerfile
       - docker-build-retag
     inputs:
-      docker-target-registry:
+      DOCKER_TARGET_REGISTRY:
         type: string
         description: Target registry hostname
-        env_var: DOCKER_TARGET_REGISTRY
         required: true
 
-      docker-target-base-path:
+      DOCKER_TARGET_BASE_PATH:
         type: string
         description: Target base path
-        env_var: DOCKER_TARGET_BASE_PATH
         default: ""
 
-      docker-image-name:
+      DOCKER_IMAGE_NAME:
         type: string
         description: Image name
-        env_var: DOCKER_IMAGE_NAME
         required: true
 
-      docker-tag:
+      DOCKER_TAG:
         type: string
         description: Image tag
-        env_var: DOCKER_TAG
         required: true
 
     outputs:
-      docker-target-image-full-uri:
+      DOCKER_TARGET_IMAGE_FULL_URI:
         type: string
         description: Assembled full image URI
-        env_var: DOCKER_TARGET_IMAGE_FULL_URI
 
     notes: |
       Sourced by docker build scripts, not executed directly.
@@ -1072,13 +955,12 @@ internals:
     called_by:
       - versions-and-naming
     inputs:
-      versions:
+      stdin:
         type: array
-        description: Versions to sort (one per line on stdin)
-        env_var: VERSIONS
+        description: Versions to sort, one per line
 
     outputs:
-      sorted:
+      stdout:
         type: string
         description: Sorted versions, one per line
         stdout: true
@@ -1098,22 +980,24 @@ internals:
   format-project-title:
     description: Format lower-kebab style project name into display title
     inputs:
-      project-name:
+      PROJECT_NAME:
         type: string
-        description: Project name in lower-kebab naming style (e.g., buildon-github-actions)
-        positional: true
+        description: Project name in lower-kebab naming style (e.g., kaptain-build-scripts)
+        kind: positional
+        position: 1
         required: true
     outputs:
-      title:
+      stdout:
         type: string
-        description: Formatted title (e.g., Buildon GitHub Actions)
+        description: Formatted title (e.g., Kaptain Build Scripts)
         stdout: true
     notes: |
       Handles special words: API, GitHub, AWS, GCP, CLI, JSON, YAML, etc.
-      Used for GitHub release titles.
+      Used for display purposes. For example in platform specific GitHub release titles.
 
 deprecations:
-  - old: BLOCK_SLASHES
-    new: BLOCK_SLASH_CONTAINING_BRANCHES
-    deprecated_in: "1.0.25"
+  BLOCK_SLASHES:
+    replaced_by: BLOCK_SLASH_CONTAINING_BRANCHES
+    added_in_version: "0.0"
+    deprecated_in_version: "0.1"
     notes: Renamed for clarity. Both names currently work.
