@@ -955,9 +955,9 @@ internals:
     called_by:
       - versions-and-naming
     inputs:
-      VERSIONS:
+      stdin:
         type: array
-        description: Versions to sort (one per line on stdin)
+        description: Versions to sort, one per line
 
     outputs:
       stdout:
