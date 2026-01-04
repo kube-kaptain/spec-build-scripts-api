@@ -1076,8 +1076,6 @@ internals:
 
   format-project-title:
     description: Format lower-kebab style project name into display title
-    called_by:
-      - versions-and-naming (workflow)
     inputs:
       project-name:
         type: string
