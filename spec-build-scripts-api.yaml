@@ -154,10 +154,10 @@ entrypoints:
         env_var: PR_BRANCH
         default: "(current branch)"
 
-      pr-creator:
+      merge-candidate-creator:
         type: string
-        description: GitHub username of PR creator (for default branch detection)
-        env_var: PR_CREATOR
+        description: Username or ID of the merge candidate creator (for bot detection)
+        env_var: MERGE_CANDIDATE_CREATOR
         default: ""
 
       log-error-prefix:
