@@ -3,7 +3,7 @@
 # Kaptain Build Scripts API Specification
 # As-built from buildon-github-actions
 
-$schema: https://github.com/kube-kaptain/spec-scripts-api-schema/releases/download/0.8/spec-scripts-api-schema-0.8.json
+$schema: https://github.com/kube-kaptain/spec-scripts-api-schema/releases/download/0.9/spec-scripts-api-schema-0.9.json
 
 name: ${ProjectName}
 version: "${Version}"
