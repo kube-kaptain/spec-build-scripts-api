@@ -95,8 +95,8 @@ tool_requirements:
 entrypoints:
   basic-quality-checks:
     description: |
-      Validate branch naming conventions and commit message quality.
-      Designed to run early in CI pipelines to fail fast on policy violations.
+      Validate branch naming conventions, branch quality, merge candidate setup, and commit message quality.
+      Designed to run as the first check in every build to fail fast on quality violations and poor practice.
     inputs:
       default-branch:
         type: string
@@ -148,10 +148,10 @@ entrypoints:
         env_var: TARGET_BRANCH
         default: "${DEFAULT_BRANCH}"
 
-      pr-branch:
+      merge-candidate-branch:
         type: string
         description: Source branch being checked
-        env_var: PR_BRANCH
+        env_var: MERGE_CANDIDATE_BRANCH
         default: "(current branch)"
 
       merge-candidate-creator:
@@ -176,19 +176,35 @@ entrypoints:
 
     exit_codes:
       "0": All quality checks passed
-      "1": Bad branch name (GitHub default pattern, slashes, double hyphens, or non-conventional)
-      "2": Bad commit message (GitHub UI pattern or conventional format violation)
-      "4": Merge commit detected (rebase required)
-      "8": Branch not rebased onto target
-      "16": Invalid target branch for PR
-      "42": Infrastructure failure (target branch not found)
+      '1': Unexpected error from tooling
+      "2": |
+        Bad branch name. Checks:
+        - Auto-generated pattern: always-on (branch names in the form creator-patch-N)
+        - Slashes: default off (turn on with block-slash-containing-branches=true)
+        - Double hyphens: default on (turn off with block-double-hyphen-containing-branches=false)
+        - Conventional prefixes: default off (turn on with require-conventional-branches=true)
+      "4": |
+        Bad commit message. Checks:
+        - Web UI auto-generated: always-on ("Update X", "Create X", and "Delete X" prefixes are bad even if hand written)
+        - Require conventional format: default off (turn on with require-conventional-commits=true)
+        - Block conventional format: default off (turn on with block-conventional-commits=true)
+      "8": |
+        Bad branch contents. Checks:
+        - Merge commit detected: always-on (No matter how they got there, eg back-merge from main, this isn't okay)
+        - Not rebased onto target: always-on (If not up to date with respect the target, we cannot guarantee correctness after merge)
+      "16": |
+        Bad merge candidate setup. Checks:
+        - Invalid target branch: always-on (controlled by default-branch and additional-release-branches)
+        - Target branch not found: always-on
+      '32': Reserved
+      '64': Reserved
+      '128': Reserved
 
     exit_codes_combinable: true
 
     notes: |
-      Exit codes are bit flags and can be combined. For example, exit code 5 means
-      both bad branch name (1) and merge commit (4).
-      Exit code 42 is special and not combinable.
+      Exit codes other than 1 are bit flags and are combined before being returned.
+      For example, exit code 6 means both bad branch name (2) and bad commit message (4).
 
   versions-and-naming:
     description: |
