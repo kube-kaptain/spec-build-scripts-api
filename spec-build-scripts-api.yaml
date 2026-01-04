@@ -967,6 +967,44 @@ entrypoints:
       Copies spec YAML, converts to JSON, generates Dockerfile.
       Token substitution handled by docker build step.
 
+  spec-validate:
+    description: Validate spec file against its JSON schema
+    inputs:
+      spec-type:
+        type: string
+        description: Type of spec being validated
+        env_var: SPEC_TYPE
+        required: true
+        allowed_values:
+          - schema
+          - api
+      spec-sub-path:
+        type: string
+        description: Directory containing spec files (relative)
+        env_var: SPEC_SUB_PATH
+        required: true
+      spec-json:
+        type: string
+        description: Filename of spec JSON file
+        env_var: SPEC_JSON
+        required: true
+      spec-validation-type:
+        type: string
+        description: Validation method to use
+        env_var: SPEC_VALIDATION_TYPE
+        default: basic
+        allowed_values:
+          - basic
+          - python3-jsonschema
+    outputs: {}
+    exit_codes:
+      "0": Validation passed
+      "1": Validation failed (missing file, invalid type, schema mismatch)
+    notes: |
+      Run after docker build has performed token substitution.
+      For api specs, reads $schema from the spec file.
+      For schema specs, validates against JSON Schema draft-07.
+
 internals:
   docker-build-shared:
     description: Shared functions for docker build scripts
