@@ -340,7 +340,7 @@ entrypoints:
 
     exit_codes:
       "0": Success
-      "1": Invalid input (bad BUILD_LOCATION, strategy not found)
+      "1": Invalid input (bad BUILD_MODE, strategy not found)
       "42": Infrastructure failure (git operations)
 
   docker-build-dockerfile:
